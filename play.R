@@ -23,18 +23,21 @@ model <- n2v_res$model
 as_tibble(rbind(xhat, x),.name_repair = "unique") %>%
   mutate(block = rep(rep(c("a","b"), each = n/2),2),
          which = rep(c("res", "init"), each = n)) %>%
-  ggplot(aes(x=...1, y=...2, color = block, shape = which, alpha = which)) + geom_point()
+  ggplot(aes(x=...1, y=...2, color = block, shape = which, alpha = which)) +
+  geom_point() + ggtitle("n2v Vectors (and Initialization)")
 
 as_tibble(xhat-x,.name_repair = "unique") %>%
   mutate(block = rep(c("a","b"), each = n/2)) %>%
-  ggplot(aes(x=...1, y=...2, color = block)) + geom_point()
-# param <- model$get_layer("sig")$get_weights()
-# a0 <- as.double(param[[2]])
-# a1 <- as.double(param[[1]])
+  ggplot(aes(x=...1, y=...2, color = block)) + geom_point() +
+  ggtitle("n2v vectors minus initial vectors")
+param <- model$get_layer("sig")$get_weights()
+a0 <- as.double(param[[2]])
+a1 <- as.double(param[[1]])
 
 phat <- 1/(1 + exp(-(a0 + a1*xhat %*% t(xhat))))
 
 g[] %>% gather_matrix() %>% filter(row<col) %>% mutate(pred = phat[upper.tri(phat)]) %>%
   mutate(b = ifelse(row < n / 2 & col < n / 2, "11",
               ifelse(row >= n/2 & col >= n/2, "22", "12"))) %>%
-  ggplot(aes(x=pred, fill=b))+geom_density(alpha = .3)
+  ggplot(aes(x=pred, fill=b))+geom_density(alpha = .3) +
+  ggtitle("Distribution of predicted 'coocurrence' probabilities")
