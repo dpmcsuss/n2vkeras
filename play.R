@@ -17,7 +17,9 @@ g <- sample_sbm(n, B, c(n/2, n/2))
 dim <- 2
 w <- 8
 x <- gbilinear_embed_spectral(g[], dim, log_odds, tol = .001)
-xhat <- n2v(g, dim, w, init = x)
+n2v_res <- n2v(g, dim, w, init = x)
+xhat <- n2v_res$embed
+model <- n2v_res$model
 as_tibble(rbind(xhat, x),.name_repair = "unique") %>%
   mutate(block = rep(rep(c("a","b"), each = n/2),2),
          which = rep(c("res", "init"), each = n)) %>%
@@ -26,9 +28,9 @@ as_tibble(rbind(xhat, x),.name_repair = "unique") %>%
 as_tibble(xhat-x,.name_repair = "unique") %>%
   mutate(block = rep(c("a","b"), each = n/2)) %>%
   ggplot(aes(x=...1, y=...2, color = block)) + geom_point()
-param <- model$get_layer("sig")$get_weights()
-a0 <- as.double(param[[2]])
-a1 <- as.double(param[[1]])
+# param <- model$get_layer("sig")$get_weights()
+# a0 <- as.double(param[[2]])
+# a1 <- as.double(param[[1]])
 
 phat <- 1/(1 + exp(-(a0 + a1*xhat %*% t(xhat))))
 

@@ -125,5 +125,5 @@ n2v <- function(g, dim, w, init = NULL){
   history <- n2v_fit(model, train)
   embed <- model$get_layer("embedding_mu")$get_weights()[[1]]
   attr(embed, "history") <- history
-  embed
+  list(embed = embed, model = model)
 }
